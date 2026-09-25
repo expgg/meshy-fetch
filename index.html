@@ -10,13 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090a0f;
-      --card-bg: rgba(18, 20, 29, 0.7);
+      --bg: #090710;
+      --card-bg: rgba(18, 14, 29, 0.75);
       --border: rgba(255, 255, 255, 0.08);
       --text-main: #f3f4f6;
-      --text-muted: #8b949e;
-      --accent-cyan: #00f0ff;
-      --accent-indigo: #6366f1;
+      --text-muted: #9ca3af;
+      --accent-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --accent-green: #4ade80;
     }
 
     * {
@@ -34,7 +35,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 24px;
+      padding: 32px 24px;
       overflow-x: hidden;
       position: relative;
     }
@@ -43,10 +44,10 @@
     body::before {
       content: "";
       position: absolute;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%);
-      top: -100px;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.08) 50%, transparent 75%);
+      top: -150px;
       left: 50%;
       transform: translateX(-50%);
       pointer-events: none;
@@ -54,28 +55,37 @@
     }
 
     .container {
-      max-width: 560px;
+      max-width: 580px;
       width: 100%;
       position: relative;
       z-index: 1;
       text-align: center;
     }
 
+    /* WAY bigger logo */
     .logo-badge {
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
-      margin: 0 auto 20px;
+      width: 210px;
+      height: 210px;
+      border-radius: 44px;
+      margin: 0 auto 28px;
       display: block;
-      box-shadow: 0 0 30px rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 60px rgba(168, 85, 247, 0.45), 0 20px 50px rgba(0, 0, 0, 0.8);
+      border: 2px solid rgba(168, 85, 247, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .logo-badge:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 80px rgba(236, 72, 153, 0.55), 0 24px 60px rgba(0, 0, 0, 0.9);
+      border-color: var(--accent-pink);
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.8px;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffffff 60%, var(--accent-cyan) 100%);
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-pink) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -87,35 +97,57 @@
       margin-bottom: 28px;
     }
 
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-green);
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
     .manifesto-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 22px;
       text-align: left;
       margin-bottom: 24px;
       backdrop-filter: blur(16px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
     }
 
     .manifesto-card h2 {
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-cyan);
-      margin-bottom: 8px;
+      letter-spacing: 1.2px;
+      color: var(--accent-purple);
+      margin-bottom: 10px;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .manifesto-card p {
       font-size: 13px;
-      color: #c9d1d9;
+      color: #d1d5db;
       line-height: 1.6;
     }
 
     .actions {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       justify-content: center;
       margin-bottom: 24px;
       flex-wrap: wrap;
@@ -125,26 +157,24 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 22px;
+      padding: 13px 24px;
       font-size: 13px;
       font-weight: 600;
-      border-radius: 12px;
+      border-radius: 14px;
       text-decoration: none;
       transition: all 0.2s ease;
       cursor: pointer;
     }
 
     .btn-primary {
-      background: #ffffff;
-      color: #0b0c10;
-      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+      background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
     }
 
     .btn-primary:hover {
-      background: var(--accent-cyan);
-      color: #0b0c10;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-      transform: translateY(-1px);
+      box-shadow: 0 0 28px rgba(236, 72, 153, 0.6);
+      transform: translateY(-2px);
     }
 
     .btn-secondary {
@@ -156,17 +186,17 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
 
     .code-box {
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
+      background: #0d0a17;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 12px;
+      padding: 11px 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      color: #79c0ff;
+      color: #d8b4fe;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -175,9 +205,9 @@
     }
 
     footer {
-      margin-top: 32px;
+      margin-top: 36px;
       font-size: 11px;
-      color: #484f58;
+      color: #6b7280;
       font-family: 'JetBrains Mono', monospace;
     }
   </style>
@@ -185,17 +215,22 @@
 <body>
 
   <div class="container">
-    <img src="assets/icons/icon128.png" alt="Meshy Fetch" class="logo-badge">
+    <img src="assets/icons/icon128.png" alt="Meshy Fetch Logo" class="logo-badge">
 
     <h1>Meshy Fetch</h1>
     <p class="tagline">Client-side 3D model & texture exporter for Meshy.ai.<br>No paywalls. No external servers. No rate limits.</p>
+
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>100% Free & Open Source</span>
+    </div>
 
     <div class="manifesto-card">
       <h2>Why this project exists</h2>
       <p>
         Meshy renders generated 3D meshes directly in your browser's WebGL canvas. Previous extensions paywalled these models behind external tollbooth servers.
         <br><br>
-        <strong>Meshy Fetch</strong> is 100% free, runs client-side inside your own browser, and exports uncompressed GLB, OBJ, and PBR textures with zero tracking.
+        <strong>Meshy Fetch</strong> runs client-side inside your own browser, and exports uncompressed GLB, OBJ, and PBR textures with zero tracking.
       </p>
     </div>
 
@@ -214,7 +249,7 @@
     </div>
 
     <footer>
-      100% Free & Open Source • Load Unpacked in Chrome / Edge / Brave
+      Load Unpacked in Chrome / Edge / Brave • Client-Side Execution Only
     </footer>
   </div>
 
