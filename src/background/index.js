@@ -94,6 +94,42 @@ chrome.runtime.onMessage.addListener(msg => {
   }
 });
 
+// 2b. Batch Tasks Received (populates full history into tasksById for carousel)
+chrome.runtime.onMessage.addListener(msg => {
+  if (msg?.action !== 'MESHY_TASKS_BATCH') return;
+  const rawTasks = msg.payload?.tasks;
+  if (!Array.isArray(rawTasks) || rawTasks.length === 0) return;
+
+  queueStateUpdate(async () => {
+    const state = await getOutputState();
+    const tasksById = { ...state.tasksById };
+
+    for (const t of rawTasks) {
+      const id = t.id || t.taskId;
+      if (id) {
+        const parsed = parseTaskData(t, id);
+        if (parsed) {
+          tasksById[id] = { ...(tasksById[id] || {}), ...parsed };
+        }
+      }
+    }
+
+    // Preserve current selection if valid, or pick selected
+    let current = state.current;
+    if (!current || !tasksById[current.taskId]) {
+      const firstValid = Object.values(tasksById).find(t => t.modelUrl);
+      if (firstValid) current = firstValid;
+    }
+
+    await setOutputState({
+      ...state,
+      current: current || state.current,
+      tasksById
+    });
+  });
+});
+
+
 // 3. Model Downloads
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.action === 'DOWNLOAD_MODEL') {

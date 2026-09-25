@@ -98,14 +98,14 @@
     return null;
   }
 
-  // 3. FETCH RECENT WORKSPACE TASKS (Gets the latest generated/textured task)
+  // 3. FETCH RECENT WORKSPACE TASKS (Gets recent generated/textured tasks)
   async function fetchRecentTasks() {
     const token = getAuthToken();
     const headers = { 'Accept': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/meshyd-api/web/v2/tasks?page=1&limit=10`, {
+      const res = await fetch(`/meshyd-api/web/v2/tasks?page=1&limit=25`, {
         method: 'GET',
         headers,
         credentials: 'include'
@@ -117,7 +117,7 @@
     } catch {}
 
     try {
-      const res = await fetch(`/meshyd-api/web/v1/tasks?page=1&limit=10`, {
+      const res = await fetch(`/meshyd-api/web/v1/tasks?page=1&limit=25`, {
         method: 'GET',
         headers,
         credentials: 'include'
@@ -140,33 +140,90 @@
     }
   }
 
+  // Detect which card in the UI has the active green outline
+  function detectSelectedCardTaskId(tasks) {
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+    try {
+      // 1. Check all elements with green border / ring or active / selected classes
+      const candidateElements = document.querySelectorAll(
+        '[aria-selected="true"], [data-selected="true"], [class*="selected"], [class*="active"], [class*="ring-"], [class*="border-[#"], [class*="border-green"], [class*="border-emerald"]'
+      );
+
+      for (const el of candidateElements) {
+        const img = el.querySelector('img') || (el.tagName === 'IMG' ? el : null);
+        if (img && img.src) {
+          for (const t of tasks) {
+            const preview = t.previewUrl || t.thumbnailUrl || t.texture?.previewUrl || t.texture?.thumbnailUrl;
+            if (preview && (img.src.includes(preview) || preview.includes(img.src) || (t.id && img.src.includes(t.id)))) {
+              return t.id || t.taskId;
+            }
+          }
+        }
+      }
+
+      // 2. Check computed styles for green borders (Meshy's active selection ring)
+      const allButtons = document.querySelectorAll('button, div[role="button"], div[class*="item"], div[class*="card"]');
+      for (const el of allButtons) {
+        const cs = window.getComputedStyle(el);
+        const col = cs.borderColor || '';
+        const m = col.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (m) {
+          const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]);
+          if (g > 140 && g > r * 1.2 && g > b * 1.2) {
+            const img = el.querySelector('img');
+            if (img && img.src) {
+              for (const t of tasks) {
+                const preview = t.previewUrl || t.thumbnailUrl || t.texture?.previewUrl || t.texture?.thumbnailUrl;
+                if (preview && (img.src.includes(preview) || preview.includes(img.src) || (t.id && img.src.includes(t.id)))) {
+                  return t.id || t.taskId;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch {}
+    return null;
+  }
+
   // 4. SYNC ACTIVE TASK
   async function syncActiveTask(preferredTaskId = null) {
-    const taskId = preferredTaskId || getActiveTaskIdFromUrl();
+    const directId = preferredTaskId || getActiveTaskIdFromUrl();
 
-    if (taskId) {
-      const taskData = await fetchTaskDirectly(taskId);
+    if (directId) {
+      const taskData = await fetchTaskDirectly(directId);
       if (taskData) {
         chrome.runtime.sendMessage({
           action: 'MESHY_TASK_SELECTED',
-          payload: { taskId, data: taskData }
+          payload: { taskId: directId, data: taskData }
         }).catch(() => {});
         return taskData;
       }
     }
 
-    // If no direct task or task failed, fetch latest workspace task
+    // Fetch batch of recent tasks
     const recent = await fetchRecentTasks();
     const tasks = recent?.result?.data || recent?.result?.tasks || recent?.data || recent?.result;
     if (Array.isArray(tasks) && tasks.length > 0) {
-      const latest = tasks[0];
-      const latestId = latest?.id || latest?.taskId;
-      if (latestId) {
+      window.__meshyRecentTasks = tasks;
+
+      // Populate background tasksById with ALL tasks so user can swap them in carousel
+      chrome.runtime.sendMessage({
+        action: 'MESHY_TASKS_BATCH',
+        payload: { tasks }
+      }).catch(() => {});
+
+      // Check if user has a card selected in DOM with green outline
+      const domSelectedId = detectSelectedCardTaskId(tasks);
+      const chosen = (domSelectedId && tasks.find(t => (t.id || t.taskId) === domSelectedId)) || tasks[0];
+      const chosenId = chosen?.id || chosen?.taskId;
+
+      if (chosenId) {
         chrome.runtime.sendMessage({
           action: 'MESHY_TASK_SELECTED',
-          payload: { taskId: latestId, data: { result: latest } }
+          payload: { taskId: chosenId, data: { result: chosen } }
         }).catch(() => {});
-        return { result: latest };
+        return { result: chosen };
       }
     }
 
@@ -206,7 +263,31 @@
     }
   });
 
-  // 7. TRACK SPA NAVIGATION & URL CHANGES
+  // 7. TRACK USER CLICKS ON CARDS IN MESHY'S SIDEBAR
+  document.addEventListener('click', (e) => {
+    try {
+      const card = e.target.closest('button, div[role="button"], div[class*="item"], div[class*="card"]');
+      if (card && window.__meshyRecentTasks) {
+        const img = card.querySelector('img') || (card.tagName === 'IMG' ? card : null);
+        if (img && img.src) {
+          for (const t of window.__meshyRecentTasks) {
+            const preview = t.previewUrl || t.thumbnailUrl || t.texture?.previewUrl || t.texture?.thumbnailUrl;
+            if (preview && (img.src.includes(preview) || preview.includes(img.src) || (t.id && img.src.includes(t.id)))) {
+              const matchedId = t.id || t.taskId;
+              if (matchedId) {
+                syncActiveTask(matchedId);
+                return;
+              }
+            }
+          }
+        }
+      }
+    } catch {}
+    setTimeout(() => syncActiveTask(), 150);
+    setTimeout(() => syncActiveTask(), 450);
+  }, true);
+
+  // 8. TRACK SPA NAVIGATION & URL CHANGES
   let lastUrl = window.location.href;
   const observer = new MutationObserver(() => {
     if (window.location.href !== lastUrl) {
