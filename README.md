@@ -1,12 +1,12 @@
-# 🧊 Meshy Fetch
-
 <p align="center">
-  <img src="logo.png" width="140" height="140" alt="Meshy Fetch Logo" style="border-radius: 28px;" />
+  <img src="assets/banner.jpg" alt="Meshy Fetch Banner" width="100%" style="border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
 </p>
 
+<h1 align="center">Meshy Fetch</h1>
+
 <p align="center">
-  <b>Free & Unlimited 3D Model Exporter for Meshy.ai</b><br>
-  <i>Export GLB, OBJ, and full texture packs directly from your browser with zero paywalls.</i>
+  <b>Free & Unlimited Client-Side 3D Model Exporter for Meshy.ai</b><br>
+  <i>Export GLB, OBJ, and full PBR texture packs directly in your browser — zero paywalls, zero telemetry.</i>
 </p>
 
 ---

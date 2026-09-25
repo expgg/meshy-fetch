@@ -86,14 +86,24 @@
   z-index: 1 !important;
 }
 
+.topbar {
+  align-items: center !important;
+  padding: 4px 2px 6px !important;
+}
+
+.brand {
+  align-items: center !important;
+  gap: 12px !important;
+}
+
 /* Bigger brand mark using the anime girl logo */
 .brand-mark {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 13px !important;
-  background: url('assets/icons/icon128.png') center/cover no-repeat !important;
-  border: 1.5px solid rgba(168, 85, 247, 0.5) !important;
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 15px !important;
+  background: url('assets/logo.png') center/cover no-repeat !important;
+  border: 2px solid rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.45), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
   flex-shrink: 0 !important;
 }
 
@@ -101,10 +111,12 @@
   display: none !important;
 }
 
+/* Bigger MeshyFetch text on top bar */
 .brand-titles h1 {
-  font-size: 17px !important;
-  font-weight: 800 !important;
-  background: linear-gradient(135deg, #ffffff 50%, #ec4899 100%) !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.4px !important;
+  background: linear-gradient(135deg, #ffffff 30%, #f472b6 75%, #c084fc 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
@@ -119,9 +131,9 @@
   color: #a855f7 !important;
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 10px !important;
-  width: 34px !important;
-  height: 34px !important;
+  border-radius: 11px !important;
+  width: 36px !important;
+  height: 36px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -149,6 +161,101 @@
   transform: rotate(360deg) !important;
 }
 
+/* --- Clean Starting Menu (Show main logo prominently, eliminate clutter) --- */
+.workspace-hero {
+  margin-top: 8px !important;
+  gap: 14px !important;
+}
+
+.workspace-icon {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 24px !important;
+  background: url('assets/logo.png') center/cover no-repeat !important;
+  border: 2px solid rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 0 0 32px rgba(168, 85, 247, 0.5), 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.workspace-icon svg {
+  display: none !important;
+}
+
+.empty-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  gap: 8px !important;
+}
+
+.empty-copy h2 {
+  font-size: 22px !important;
+  font-weight: 850 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.3px !important;
+  background: linear-gradient(135deg, #ffffff 40%, #f472b6 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.empty-copy p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  color: #d1d5db !important;
+  max-width: 310px !important;
+  margin: 0 auto !important;
+}
+
+/* Hide clutter: onboarding steps, tags, and eyebrows */
+.onboarding-steps,
+.landing-format-tags,
+.workspace-eyebrow,
+.workspace-active-cue {
+  display: none !important;
+}
+
+/* Beautiful Action Buttons */
+.landing-actions-row {
+  margin-top: 24px !important;
+  gap: 12px !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.workspace-button.glow-button {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 4px 18px rgba(168, 85, 247, 0.4) !important;
+  transition: all 0.2s ease !important;
+}
+
+.workspace-button.glow-button:hover {
+  box-shadow: 0 0 26px rgba(236, 72, 153, 0.6) !important;
+  transform: translateY(-1px) !important;
+}
+
+.workspace-button.secondary.glow-button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.workspace-button.secondary.glow-button:hover {
+  background: rgba(168, 85, 247, 0.15) !important;
+  border-color: #ec4899 !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
 /* Subtle light green touch on status indicators */
 .status-pill, .status-badge, [class*="status"] {
   color: #4ade80 !important;
@@ -168,3 +275,4 @@
   box-shadow: 0 0 28px rgba(236, 72, 153, 0.6) !important;
   transform: translateY(-1px) !important;
 }
+
