@@ -1,0 +1,45 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icon128.plasmo.3c1ed2d2.png",
+         "16": "icon16.plasmo.6c567d50.png",
+         "32": "icon32.plasmo.76b92899.png",
+         "48": "icon48.plasmo.aced7582.png",
+         "64": "icon64.plasmo.8bb5e6e0.png"
+      },
+      "default_popup": "popup.html"
+   },
+   "author": "expgg",
+   "background": {
+      "service_worker": "static/background/index.js"
+   },
+   "content_scripts": [ {
+      "css": [  ],
+      "js": [ "community-ui.e4f6e8b3.js" ],
+      "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
+      "run_at": "document_idle"
+   }, {
+      "css": [  ],
+      "js": [ "community-bridge.4738728f.js" ],
+      "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
+      "run_at": "document_start"
+   }, {
+      "css": [  ],
+      "js": [ "meshy-bridge.c2858880.js" ],
+      "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
+      "run_at": "document_start"
+   } ],
+   "description": "Free, open-source downloader for Meshy 3D models with support for GLB, OBJ, and textures.",
+   "host_permissions": [ "https://www.meshy.ai/*", "https://meshy.ai/*", "https://assets.meshy.ai/*", "https://api.meshy.ai/*" ],
+   "icons": {
+      "128": "icon128.plasmo.3c1ed2d2.png",
+      "16": "icon16.plasmo.6c567d50.png",
+      "32": "icon32.plasmo.76b92899.png",
+      "48": "icon48.plasmo.aced7582.png",
+      "64": "icon64.plasmo.8bb5e6e0.png"
+   },
+   "manifest_version": 3,
+   "name": "Meshy Downloader — Free 3D Model Exporter",
+   "permissions": [ "scripting", "storage", "downloads" ],
+   "version": "1.0.0"
+}
