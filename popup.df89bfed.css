@@ -22,3 +22,39 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.refresh-btn {
+  color: var(--color-lime) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: 9px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+}
+
+.refresh-btn:hover {
+  background: rgba(0, 240, 255, 0.2) !important;
+  border-color: var(--color-lime) !important;
+  color: #ffffff !important;
+  transform: rotate(90deg);
+}
+
+.refresh-btn:active {
+  transform: rotate(360deg) scale(0.92);
+}
+
+/* Eliminate all light theme overrides */
+.app[data-theme="light"], .app {
+  color-scheme: dark !important;
+  --color-bg-page: #0b0b0b !important;
+  --color-bg-card: #101010 !important;
+  --color-bg-elevated: #141414 !important;
+  --color-text-primary: #ffffff !important;
+  --color-text-secondary: #a1a1aa !important;
+  background: radial-gradient(ellipse 260px 200px at 0% 0%, var(--glow-lime-soft) 0%, transparent 80%), radial-gradient(ellipse 240px 180px at 100% 100%, var(--glow-pink-soft) 0%, transparent 80%), linear-gradient(180deg, #0b0b0b 0%, #0e0e0e 50%, #101010 100%) !important;
+}

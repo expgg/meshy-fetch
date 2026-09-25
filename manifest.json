@@ -1,6 +1,6 @@
 {
    "manifest_version": 3,
-   "name": "Meshy Downloader — Free 3D Model Exporter",
+   "name": "Meshy Fetch — Free 3D Model Exporter",
    "description": "Free, open-source downloader for Meshy 3D models with support for GLB, OBJ, and textures.",
    "version": "1.0.0",
    "author": "expgg",

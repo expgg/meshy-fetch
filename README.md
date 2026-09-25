@@ -1,7 +1,7 @@
-# 🧊 Meshy Downloader
+# 🧊 Meshy Fetch
 
 <p align="center">
-  <img src="logo.png" width="140" height="140" alt="Meshy Downloader Logo" style="border-radius: 28px;" />
+  <img src="logo.png" width="140" height="140" alt="Meshy Fetch Logo" style="border-radius: 28px;" />
 </p>
 
 <p align="center">
@@ -16,6 +16,7 @@
 - ⚡ **1-Click GLB Export:** Intercepts and downloads high-fidelity 3D meshes directly from browser memory.
 - 🔄 **Client-Side OBJ Conversion:** Convert GLB models to Wavefront OBJ format on-the-fly without uploading to third-party servers.
 - 🎨 **Full PBR Textures:** Extract diffuse, roughness, and normal maps directly from Meshy generations.
+- 🔄 **Instant Live Refresh:** 1-click refresh button directly queries Meshy's v2 task endpoints to fetch the latest textured models and previews.
 - 🛡️ **Zero Paywall & Zero Telemetry:** Completely disconnected from remote tracking servers (`onrender.com`). Runs 100% offline in your own browser.
 - 🌐 **Supports Both Modes:** Works on personal workspace creations and public community showcase posts.
 
@@ -25,7 +26,7 @@
 
 1. **Clone or Download** this repository:
    ```bash
-   git clone https://github.com/expgg/meshy-downloader.git
+   git clone https://github.com/expgg/meshy-fetch.git
    ```
    *(Or download as a ZIP and extract it to a folder).*
 

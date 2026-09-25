@@ -119,6 +119,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
+// 6. Manual Task Refresh Trigger (from Refresh button)
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg?.action === 'REFRESH_ACTIVE_TASK' || msg?.action === 'TRIGGER_REFRESH') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'REFRESH_ACTIVE_TASK' }, (res) => {
+          sendResponse(res || { ok: true });
+        });
+      } else {
+        sendResponse({ ok: false, error: 'No active Meshy tab found' });
+      }
+    });
+    return true;
+  }
+});
+
 // ============================================================================
 // LIFECYCLE & INITIALIZATION
 // ============================================================================

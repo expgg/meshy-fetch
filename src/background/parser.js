@@ -1,8 +1,8 @@
 /**
- * Meshy Downloader - Model & Texture Parser
+ * Meshy Fetch - Model & Texture Parser
  * 
  * Extracts textured GLB models, preview thumbnails, and PBR textures.
- * CRITICAL FIX: Prioritizes textured outputs over untextured base meshes!
+ * Explicitly prioritizes textured outputs over untextured base meshes!
  */
 
 import { isValidAssetUrl } from '../shared/constants.js';
@@ -40,28 +40,41 @@ export function parseTaskData(rawResponse, explicitTaskId) {
   }
 
   // 2. EXTRACT MODEL URL (PRIORITIZE TEXTURED MODEL OVER BASE MESH!)
-  const modelCandidate = taskResult.texture?.modelUrl ??
-                         taskResult.texture?.model_url ??
-                         taskResult.model_urls?.glb ??
-                         taskResult.model_urls?.meshy ??
-                         taskResult.modelUrl ??
-                         taskResult.generate?.modelUrl ??
-                         taskResult.mesh?.modelUrl;
+  let rawModel = taskResult.texture?.modelUrl ??
+                 taskResult.texture?.model_urls?.glb ??
+                 taskResult.texture?.model_urls?.meshy ??
+                 taskResult.texture?.model_url ??
+                 taskResult.model_urls?.glb ??
+                 taskResult.model_urls?.meshy ??
+                 taskResult.modelUrl ??
+                 taskResult.generate?.modelUrl ??
+                 taskResult.mesh?.modelUrl;
 
-  const validModelUrl = isValidAssetUrl(modelCandidate) ? String(modelCandidate) : null;
+  // If model is an object with format keys
+  if (rawModel && typeof rawModel === 'object') {
+    rawModel = rawModel.glb || rawModel.meshy || rawModel.url || null;
+  }
+
+  const validModelUrl = isValidAssetUrl(rawModel) ? String(rawModel) : null;
 
   // 3. EXTRACT PREVIEW URL (PRIORITIZE TEXTURED PREVIEW OVER UNTEXTURED STATUE!)
-  const previewCandidate = taskResult.texture?.previewUrl ??
-                           taskResult.texture?.thumbnailUrl ??
-                           taskResult.texture?.preview_url ??
-                           taskResult.previewUrl ??
-                           taskResult.preview_url ??
-                           taskResult.thumbnailUrl ??
-                           taskResult.thumbnail_url ??
-                           resultContainer.previewUrl ??
-                           resultContainer.thumbnailUrl;
+  let rawPreview = taskResult.texture?.previewUrl ??
+                   taskResult.texture?.thumbnailUrl ??
+                   taskResult.texture?.preview_url ??
+                   taskResult.previewUrl ??
+                   taskResult.preview_url ??
+                   taskResult.thumbnailUrl ??
+                   taskResult.thumbnail_url ??
+                   taskResult.imageUrl ??
+                   taskResult.coverUrl ??
+                   resultContainer.previewUrl ??
+                   resultContainer.thumbnailUrl;
 
-  const validPreviewUrl = isValidAssetUrl(previewCandidate) ? String(previewCandidate) : null;
+  if (rawPreview && typeof rawPreview === 'object') {
+    rawPreview = rawPreview.url || rawPreview.previewUrl || null;
+  }
+
+  const validPreviewUrl = isValidAssetUrl(rawPreview) ? String(rawPreview) : null;
 
   // 4. EXTRACT TASK METADATA
   const taskId = explicitTaskId ?? (typeof resultContainer.id === 'string' ? resultContainer.id : null);
