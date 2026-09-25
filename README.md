@@ -42,13 +42,42 @@
 
 ---
 
+## 📁 Project Architecture
+
+The codebase is organized into clean, unminified ES modules with clear separation of concerns:
+
+```
+meshy-downloader/
+├── src/
+│   ├── background/
+│   │   ├── index.js          # Service worker entry point & message router
+│   │   ├── parser.js         # Extracts textured GLBs, preview images & PBR textures
+│   │   ├── storage.js        # Output state & offline storage management
+│   │   ├── downloader.js     # Native chrome.downloads dispatcher
+│   │   └── injector.js       # Registers MAIN-world hooks & injects tab bridges
+│   ├── content/
+│   │   ├── meshy-interceptor.js     # MAIN world: hooks window.fetch & XMLHttpRequest
+│   │   ├── meshy-bridge.js          # ISOLATED world: relays task selection & events
+│   │   ├── community-interceptor.js # MAIN world: hooks window.Worker for glTF buffer
+│   │   └── community-bridge.js      # ISOLATED world: coordinates community model buffers
+│   └── shared/
+│       └── constants.js      # Shared storage keys, asset domains & regexes
+├── assets/
+│   └── icons/                # Extension icons (16px, 32px, 48px, 64px, 128px)
+├── popup.html / popup.*      # Sleek cyber-cyan client interface
+└── index.html                # Minimal landing page for Cloudflare Pages
+```
+
+---
+
 ## 🛠️ How It Works Internally
 
 Meshy streams 3D model data to client-side WebGL viewers (Three.js/Babylon) so models can render on your screen:
 
 1. **Web Worker Interception:** The extension hooks `window.Worker` and monitors binary data transfers. Whenever the loader thread outputs a buffer starting with the `glTF` magic header (`0x67 0x6C 0x54 0x46`), the raw binary is captured from RAM.
 2. **API Traffic Sniffing:** For workspace models, the extension sniffs task completion endpoints (`/meshyd-api/web/v1/tasks/.../status`) to retrieve direct AWS S3 / CloudFront asset URLs.
-3. **Local Processing:** Downloads are handled natively via `chrome.downloads.download()`. No remote proxying or server computation is involved.
+3. **Texture Prioritization:** Directly prioritizes textured model URLs and textures (`taskResult.texture.modelUrl`) over base untextured meshes.
+4. **Local Processing:** Downloads are handled natively via `chrome.downloads.download()`. No remote proxying or server computation is involved.
 
 ---
 
