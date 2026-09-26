@@ -1,7 +1,7 @@
 {
    "manifest_version": 3,
    "name": "Meshy Fetch — Free 3D Model Exporter",
-   "description": "Free, open-source downloader for Meshy 3D models with support for GLB, OBJ, and textures.",
+   "description": "Free, open-source downloader for Meshy 3D models with support for GLB, OBJ, FBX, 3MF, STL, and textures.",
    "version": "1.0.0",
    "author": "expgg",
    "action": {
@@ -15,19 +15,30 @@
       "default_popup": "popup.html"
    },
    "background": {
-      "service_worker": "src/background/index.js",
-      "type": "module"
+      "service_worker": "static/background/index.js"
    },
    "content_scripts": [
       {
+         "css": [ "workspace-widget.css" ],
+         "js": [ "workspace-widget.js" ],
+         "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
+         "run_at": "document_idle"
+      },
+      {
          "css": [],
-         "js": [ "src/content/community-bridge.js" ],
+         "js": [ "community-ui.e4f6e8b3.js" ],
+         "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
+         "run_at": "document_idle"
+      },
+      {
+         "css": [],
+         "js": [ "community-bridge.4738728f.js" ],
          "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
          "run_at": "document_start"
       },
       {
          "css": [],
-         "js": [ "src/content/meshy-bridge.js" ],
+         "js": [ "meshy-bridge.c2858880.js" ],
          "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ],
          "run_at": "document_start"
       }
@@ -49,5 +60,15 @@
       "scripting",
       "storage",
       "downloads"
+   ],
+   "web_accessible_resources": [
+      {
+         "resources": [
+            "community-interceptor.2e9c3aa0.js",
+            "meshy-interceptor.8904ffc7.js",
+            "empty.00babefb.js"
+         ],
+         "matches": [ "https://www.meshy.ai/*", "https://meshy.ai/*" ]
+      }
    ]
 }
