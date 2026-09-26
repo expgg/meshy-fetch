@@ -39,20 +39,21 @@ export function parseTaskData(rawResponse, explicitTaskId) {
     if (cleaned.length > 0) texturesList = cleaned;
   }
 
-  // 2. EXTRACT MODEL URL (PRIORITIZE TEXTURED MODEL OVER BASE MESH!)
-  let rawModel = taskResult.texture?.modelUrl ??
-                 taskResult.texture?.model_urls?.glb ??
-                 taskResult.texture?.model_urls?.meshy ??
-                 taskResult.texture?.model_url ??
+  // 2. EXTRACT MODEL URL (PRIORITIZE TEXTURED GLB OVER UNTEXTURED BASE MESH & PROPRIETARY .meshy)
+  let rawModel = taskResult.texture?.model_urls?.glb ??
                  taskResult.model_urls?.glb ??
-                 taskResult.model_urls?.meshy ??
+                 (typeof taskResult.texture?.modelUrl === 'string' && !taskResult.texture.modelUrl.includes('.meshy') ? taskResult.texture.modelUrl : null) ??
+                 (typeof taskResult.modelUrl === 'string' && !taskResult.modelUrl.includes('.meshy') ? taskResult.modelUrl : null) ??
+                 (typeof taskResult.generate?.modelUrl === 'string' && !taskResult.generate.modelUrl.includes('.meshy') ? taskResult.generate.modelUrl : null) ??
+                 (typeof taskResult.mesh?.modelUrl === 'string' && !taskResult.mesh.modelUrl.includes('.meshy') ? taskResult.mesh.modelUrl : null) ??
+                 taskResult.texture?.modelUrl ??
                  taskResult.modelUrl ??
-                 taskResult.generate?.modelUrl ??
-                 taskResult.mesh?.modelUrl;
+                 taskResult.texture?.model_urls?.meshy ??
+                 taskResult.model_urls?.meshy;
 
   // If model is an object with format keys
   if (rawModel && typeof rawModel === 'object') {
-    rawModel = rawModel.glb || rawModel.meshy || rawModel.url || null;
+    rawModel = rawModel.glb || rawModel.url || rawModel.meshy || null;
   }
 
   const validModelUrl = isValidAssetUrl(rawModel) ? String(rawModel) : null;
