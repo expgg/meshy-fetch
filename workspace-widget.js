@@ -1,9 +1,9 @@
 /**
- * Meshy Fetch - Workspace Physical In-Page Download Widget
+ * Meshy Fetch - Workspace Physical In-Page Sleek Download Widget
  * 
- * Injects a prominent, physical download button directly under the recent generations section
- * on https://www.meshy.ai/workspace with format pills (GLB, OBJ, FBX, 3MF, STL, USDZ, Textures).
- * Inactive formats are grayed out.
+ * Injects a sleek, low-profile physical download widget directly into the right assets sidebar
+ * on https://www.meshy.ai/workspace with format pills (GLB, OBJ, FBX, 3MF, STL, USDZ, ZIP).
+ * Matches the width of the right section perfectly without covering pagination.
  */
 
 (function initWorkspaceWidget() {
@@ -12,21 +12,21 @@
 
   const STORAGE_KEY = 'meshyOutputState';
   let activeTask = null;
-  let activeFormat = 'glb'; // default
+  let activeFormat = 'glb';
   let isDownloading = false;
 
   // Format definitions
   const FORMATS = [
-    { id: 'glb', label: 'GLB', tag: 'Standard' },
-    { id: 'obj', label: 'OBJ', tag: 'Wavefront' },
-    { id: 'fbx', label: 'FBX', tag: 'Autodesk' },
-    { id: '3mf', label: '3MF', tag: 'Print' },
-    { id: 'stl', label: 'STL', tag: 'CAD' },
-    { id: 'usdz', label: 'USDZ', tag: 'Apple AR' },
-    { id: 'textures', label: 'TEXTURES (ZIP)', tag: 'PBR Maps', fullWidth: true }
+    { id: 'glb', label: 'GLB' },
+    { id: 'obj', label: 'OBJ' },
+    { id: 'fbx', label: 'FBX' },
+    { id: '3mf', label: '3MF' },
+    { id: 'stl', label: 'STL' },
+    { id: 'usdz', label: 'USDZ' },
+    { id: 'textures', label: 'ZIP (TEX)', isTextures: true }
   ];
 
-  // 1. CREATE WIDGET DOM
+  // 1. CREATE SLEEK WIDGET DOM
   function createWidgetElement() {
     const container = document.createElement('div');
     container.id = 'meshy-fetch-workspace-container';
@@ -37,23 +37,16 @@
           <span class="meshy-fetch-badge">Meshy Fetch</span>
           <span class="meshy-fetch-model-name" id="meshy-widget-model-name">Loading model...</span>
         </div>
+        <div class="meshy-fetch-status-hint" id="meshy-widget-status-hint">Instant Free</div>
       </div>
 
       <button type="button" class="meshy-big-fat-btn" id="meshy-widget-big-download-btn" disabled>
-        <div class="meshy-btn-main-text">
-          <span id="meshy-widget-btn-icon">⬇</span>
-          <span id="meshy-widget-btn-label">DOWNLOAD GLB</span>
-        </div>
-        <div class="meshy-btn-sub-text" id="meshy-widget-btn-sub">Instant Free Export • Direct Stream</div>
+        <span class="meshy-btn-icon" id="meshy-widget-btn-icon">⬇</span>
+        <span id="meshy-widget-btn-label">DOWNLOAD GLB</span>
       </button>
 
-      <div class="meshy-format-section-title">
-        <span>Available Formats</span>
-        <span style="font-size: 10px; color: #64748b; font-weight: 500;">Select Format</span>
-      </div>
-
-      <div class="meshy-format-options-grid" id="meshy-widget-format-grid">
-        <!-- Injected dynamically -->
+      <div class="meshy-format-options-row" id="meshy-widget-format-row">
+        <!-- Rendered dynamically -->
       </div>
 
       <div class="meshy-widget-status-msg" id="meshy-widget-status-msg">
@@ -64,7 +57,7 @@
     return container;
   }
 
-  // 2. CHECK FORMAT AVAILABILITY FOR TASK
+  // 2. CHECK FORMAT AVAILABILITY
   function checkFormatAvailability(formatId, task) {
     if (!task) return { available: false, url: null };
 
@@ -79,7 +72,6 @@
     // OBJ
     if (formatId === 'obj') {
       const objUrl = task.modelUrls?.obj || null;
-      // OBJ is available either via direct URL or convertible from GLB
       const glbUrl = task.modelUrls?.glb || (task.modelUrl && !task.modelUrl.includes('.meshy') ? task.modelUrl : null);
       return { available: !!(objUrl || glbUrl), url: objUrl || glbUrl, isConverted: !objUrl };
     }
@@ -119,27 +111,18 @@
 
   // 3. RENDER FORMAT PILLS
   function renderFormatPills(task) {
-    const grid = document.getElementById('meshy-widget-format-grid');
-    if (!grid) return;
+    const row = document.getElementById('meshy-widget-format-row');
+    if (!row) return;
 
-    grid.innerHTML = '';
+    row.innerHTML = '';
 
     FORMATS.forEach(fmt => {
       const { available } = checkFormatAvailability(fmt.id, task);
       const pill = document.createElement('div');
-      pill.className = `meshy-format-pill ${fmt.fullWidth ? 'meshy-format-textures-btn' : ''} ${!available ? 'disabled' : ''} ${activeFormat === fmt.id && available ? 'active' : ''}`;
+      pill.className = `meshy-format-pill ${fmt.isTextures ? 'meshy-format-textures-pill' : ''} ${!available ? 'disabled' : ''} ${activeFormat === fmt.id && available ? 'active' : ''}`;
       pill.dataset.format = fmt.id;
-
-      if (!available) {
-        pill.title = `${fmt.label} is not available for this model`;
-      } else {
-        pill.title = `Click to choose ${fmt.label}`;
-      }
-
-      pill.innerHTML = `
-        <span>${fmt.label}</span>
-        <span class="meshy-format-tag">${!available ? 'N/A' : fmt.tag}</span>
-      `;
+      pill.title = available ? `Switch to ${fmt.label}` : `${fmt.label} not generated`;
+      pill.textContent = fmt.label;
 
       if (available) {
         pill.addEventListener('click', (e) => {
@@ -148,7 +131,7 @@
         });
       }
 
-      grid.appendChild(pill);
+      row.appendChild(pill);
     });
   }
 
@@ -166,6 +149,7 @@
     const statusMsg = document.getElementById('meshy-widget-status-msg');
     const statusDot = document.getElementById('meshy-widget-status-dot');
     const nameEl = document.getElementById('meshy-widget-model-name');
+    const hintEl = document.getElementById('meshy-widget-status-hint');
 
     if (!btn || !label) return;
 
@@ -175,12 +159,14 @@
       if (statusDot) statusDot.className = 'meshy-fetch-status-dot inactive';
       if (nameEl) nameEl.textContent = 'Waiting for selection...';
       if (statusMsg) statusMsg.textContent = 'Click any model in Recent Generations';
+      if (hintEl) hintEl.textContent = 'Select model';
       return;
     }
 
+    const displayName = activeTask.modelName || activeTask.name || `Task ${activeTask.taskId?.slice(0, 8) || ''}`;
     if (nameEl) {
-      nameEl.textContent = activeTask.modelName || activeTask.name || `Task ${activeTask.taskId?.slice(0, 8) || ''}`;
-      nameEl.title = nameEl.textContent;
+      nameEl.textContent = displayName;
+      nameEl.title = displayName;
     }
 
     const { available } = checkFormatAvailability(activeFormat, activeTask);
@@ -194,8 +180,9 @@
       label.innerHTML = `<span class="meshy-spinner"></span> EXPORTING ${activeFormat.toUpperCase()}...`;
       if (statusMsg) {
         statusMsg.className = 'meshy-widget-status-msg';
-        statusMsg.innerHTML = `<span class="meshy-spinner"></span> Exporting model payload to disk...`;
+        statusMsg.innerHTML = `<span class="meshy-spinner"></span> Exporting model payload...`;
       }
+      if (hintEl) hintEl.textContent = 'Exporting...';
       return;
     }
 
@@ -206,6 +193,7 @@
         statusMsg.className = 'meshy-widget-status-msg success';
         statusMsg.textContent = `✓ ${activeFormat.toUpperCase()} Ready for Instant Download`;
       }
+      if (hintEl) hintEl.textContent = 'Ready ✓';
     } else {
       btn.disabled = true;
       label.textContent = `${activeFormat.toUpperCase()} UNAVAILABLE`;
@@ -213,26 +201,26 @@
         statusMsg.className = 'meshy-widget-status-msg';
         statusMsg.textContent = `Format ${activeFormat.toUpperCase()} not generated for this model`;
       }
+      if (hintEl) hintEl.textContent = 'Unavailable';
     }
   }
 
-  // 6. EXECUTE DOWNLOAD (V1 NATIVE ENGINE)
+  // 6. EXECUTE DOWNLOAD
   async function executeDownload() {
     if (!activeTask || isDownloading) return;
 
-    const { available, url, isConverted } = checkFormatAvailability(activeFormat, activeTask);
+    const { available, url } = checkFormatAvailability(activeFormat, activeTask);
     if (!available || !url) return;
 
     isDownloading = true;
     updateDownloadButtonState();
 
     const taskId = activeTask.taskId || 'meshy-model';
-    const rawName = activeTask.modelName || 'meshy-model';
+    const rawName = activeTask.modelName || `meshy-${taskId.slice(0, 8)}`;
     const sanitizedName = rawName.replace(/[/\\?%*:|"<>]/g, '_').trim();
 
     try {
       if (activeFormat === 'textures') {
-        // Download all texture files
         const textures = Array.isArray(url) ? url : [];
         if (textures.length > 0) {
           for (let i = 0; i < textures.length; i++) {
@@ -252,9 +240,7 @@
         }
         showSuccessMessage('✓ Textures downloaded!');
       } else {
-        // Direct model download (GLB, OBJ, FBX, 3MF, STL, USDZ)
         const filename = `${sanitizedName}.${activeFormat}`;
-        
         chrome.runtime.sendMessage({
           action: 'DOWNLOAD_MODEL',
           url,
@@ -263,20 +249,19 @@
           filename
         }, (res) => {
           if (res && !res.ok) {
-            console.warn('[MeshyFetch] Background download message response:', res);
+            console.warn('[MeshyFetch] Background download response:', res);
           }
         });
-
         showSuccessMessage(`✓ Downloading ${sanitizedName}.${activeFormat}`);
       }
     } catch (err) {
-      console.error('[MeshyFetch] Download execution failed:', err);
+      console.error('[MeshyFetch] Download failed:', err);
       showErrorMessage(err?.message || 'Download failed');
     } finally {
       setTimeout(() => {
         isDownloading = false;
         updateDownloadButtonState();
-      }, 1800);
+      }, 1500);
     }
   }
 
@@ -307,7 +292,6 @@
         if (candidate && (!activeTask || activeTask.taskId !== candidate.taskId || candidate.modelUrl !== activeTask.modelUrl)) {
           activeTask = candidate;
           
-          // If active format not available for this task, switch to GLB
           const { available } = checkFormatAvailability(activeFormat, activeTask);
           if (!available) {
             activeFormat = 'glb';
@@ -320,32 +304,111 @@
     } catch {}
   }
 
-  // 8. MOUNT WIDGET INTO MESHY DOM
+  // 8. RESOLVE AND FETCH TASK DETAILS DIRECTLY
+  async function fetchAndSelectTask(taskId, fallbackName = null) {
+    if (!taskId) return;
+    taskId = taskId.toLowerCase().trim();
+
+    if (!activeTask || activeTask.taskId !== taskId) {
+      activeTask = {
+        taskId,
+        modelName: fallbackName || `Task ${taskId.slice(0, 8)}`,
+        taskStatus: 'SUCCEEDED'
+      };
+      renderFormatPills(activeTask);
+      updateDownloadButtonState();
+    }
+
+    try {
+      // Try v2 task endpoint first
+      let res = await fetch(`/meshyd-api/web/v2/tasks/${encodeURIComponent(taskId)}`, { credentials: 'include' });
+      let data = null;
+      if (res.ok) {
+        data = await res.json();
+      } else {
+        // Fallback to v1
+        let resV1 = await fetch(`/meshyd-api/web/v1/tasks/${encodeURIComponent(taskId)}/status`, { credentials: 'include' });
+        if (resV1.ok) {
+          data = await resV1.json();
+        }
+      }
+
+      if (data) {
+        // Forward to background for chrome storage persistence
+        chrome.runtime.sendMessage({
+          action: 'MESHY_NETWORK_EVENT',
+          payload: {
+            phase: 'response',
+            url: `${window.location.origin}/meshyd-api/web/v2/tasks/${encodeURIComponent(taskId)}`,
+            status: 200,
+            data
+          }
+        }).catch(() => {});
+
+        chrome.runtime.sendMessage({
+          action: 'MESHY_TASK_SELECTED',
+          payload: { taskId, data }
+        }).catch(() => {});
+
+        // Parse directly for immediate widget update
+        const n = data?.result ?? data?.data ?? data;
+        const r = n?.result ?? n;
+        const mu = r?.model_urls || n?.model_urls || r?.modelUrls || n?.modelUrls || null;
+        const glb = mu?.glb || r?.modelUrl || n?.modelUrl || r?.generate?.modelUrl || null;
+        const textures = r?.textureUrls || n?.textureUrls || r?.texture?.textureUrls || null;
+        const name = r?.name || r?.modelName || n?.name || fallbackName || `Task ${taskId.slice(0, 8)}`;
+
+        activeTask = {
+          taskId,
+          modelName: name,
+          taskStatus: n?.status || r?.status || 'SUCCEEDED',
+          modelUrl: glb,
+          modelUrls: mu,
+          textureUrls: textures
+        };
+
+        const { available } = checkFormatAvailability(activeFormat, activeTask);
+        if (!available) activeFormat = 'glb';
+
+        renderFormatPills(activeTask);
+        updateDownloadButtonState();
+      }
+    } catch (err) {
+      console.warn('[MeshyFetch] Task fetch error:', err);
+    }
+  }
+
+  // 9. MOUNT WIDGET PHYSICALLY INTO RIGHT SIDEBAR
   function mountWidget() {
     if (document.getElementById('meshy-fetch-workspace-container')) return;
 
-    // Search for Recent Generations container in Meshy Workspace
-    // In Meshy workspace, the right panel has search input and generation grid
-    const searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="generation"]');
-    let targetContainer = null;
+    // Look for right sidebar elements in Meshy
+    const modelList = document.querySelector('[data-testid="model-list"]') || document.getElementById('model-list');
+    const assetsList = document.querySelector('[data-testid="assets-list"]');
+    const scrollArea = assetsList ? assetsList.closest('[data-slot="scroll-area"]') : document.querySelector('[data-slot="scroll-area"]');
 
-    if (searchInput) {
-      // Find parent sidebar / panel
-      let parent = searchInput.parentElement;
-      for (let i = 0; i < 8 && parent; i++) {
-        // Look for the panel container that holds the generation grid
-        const hasGrid = parent.querySelector('div[class*="grid"], [role="grid"], button[class*="card"]');
-        if (hasGrid && parent.children.length >= 2) {
-          targetContainer = parent;
-          break;
-        }
-        parent = parent.parentElement;
+    let targetParent = null;
+    let insertBeforeEl = null;
+
+    if (modelList) {
+      // Find the inner flex-col container
+      const col = modelList.querySelector('div[class*="flex-col"]') || modelList;
+      targetParent = col;
+
+      // Look for pagination container at bottom of sidebar (e.g. element with 1/1 or grid-cols)
+      const pagination = col.querySelector('div[class*="grid-cols-[1fr_auto_1fr]"]') || 
+                         col.querySelector('[data-testid*="page"], [class*="pagination"]') || 
+                         col.lastElementChild;
+      if (pagination && pagination !== col) {
+        insertBeforeEl = pagination;
       }
+    } else if (scrollArea && scrollArea.parentElement) {
+      targetParent = scrollArea.parentElement;
+      insertBeforeEl = scrollArea.nextSibling;
     }
 
     const widget = createWidgetElement();
 
-    // Hook click listener to Big Fat Download Button
     const bigBtn = widget.querySelector('#meshy-widget-big-download-btn');
     if (bigBtn) {
       bigBtn.addEventListener('click', (e) => {
@@ -354,25 +417,16 @@
       });
     }
 
-    if (targetContainer) {
-      // Look for pagination container at bottom of sidebar (e.g. element with < 1/1 > or buttons)
-      const pagination = targetContainer.querySelector('[class*="pagination"], [class*="footer"], div:last-child');
-      if (pagination && pagination.parentElement === targetContainer) {
-        targetContainer.insertBefore(widget, pagination);
+    if (targetParent) {
+      if (insertBeforeEl) {
+        targetParent.insertBefore(widget, insertBeforeEl);
       } else {
-        targetContainer.appendChild(widget);
+        targetParent.appendChild(widget);
       }
-      console.log('[MeshyFetch] Physical download widget mounted under recent generations.');
+      console.log('[MeshyFetch] Sleek physical download widget mounted inside right section.');
     } else {
-      // Fallback: Dock at bottom right/left of workspace
-      widget.style.position = 'fixed';
-      widget.style.bottom = '20px';
-      widget.style.right = '24px';
-      widget.style.width = '340px';
-      widget.style.maxHeight = '90vh';
-      widget.style.zIndex = '9999999';
-      document.body.appendChild(widget);
-      console.log('[MeshyFetch] Physical download widget mounted as bottom dock.');
+      // Fallback if right panel is not yet rendered
+      return;
     }
 
     renderFormatPills(activeTask);
@@ -380,18 +434,43 @@
     syncFromStorage();
   }
 
-  // 9. LISTEN TO CLICKS ON CARDS IN MESHY'S SIDEBAR
+  // 10. LISTEN TO CLICKS ON CARDS IN MESHY'S SIDEBAR
   document.addEventListener('click', (e) => {
     try {
-      const card = e.target.closest('button, div[role="button"], div[class*="card"], div[class*="item"]');
+      const card = e.target.closest('[data-testid="assets-card"], div.aspect-square, div[class*="aspect-square"]');
       if (card) {
-        setTimeout(syncFromStorage, 150);
-        setTimeout(syncFromStorage, 450);
+        const img = card.querySelector('img');
+        const srcStr = (img?.getAttribute('srcset') || '') + ' ' + (img?.src || '');
+        const uuidMatch = srcStr.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        if (uuidMatch) {
+          const taskId = uuidMatch[0].toLowerCase();
+          fetchAndSelectTask(taskId);
+        } else {
+          setTimeout(syncFromStorage, 150);
+        }
       }
     } catch {}
   }, true);
 
-  // 10. STORAGE CHANGES LISTENER
+  // 11. AUTO-DETECT ACTIVE OR FIRST CARD ON INITIAL LOAD
+  function autoDetectFirstCard() {
+    if (activeTask && activeTask.modelUrl) return;
+    try {
+      const assetsList = document.querySelector('[data-testid="assets-list"]');
+      if (!assetsList) return;
+      const card = assetsList.querySelector('[data-testid="assets-card"]') || assetsList.querySelector('div.aspect-square');
+      if (card) {
+        const img = card.querySelector('img');
+        const srcStr = (img?.getAttribute('srcset') || '') + ' ' + (img?.src || '');
+        const uuidMatch = srcStr.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        if (uuidMatch) {
+          fetchAndSelectTask(uuidMatch[0].toLowerCase());
+        }
+      }
+    } catch {}
+  }
+
+  // 12. STORAGE CHANGES LISTENER
   try {
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === 'local' && changes[STORAGE_KEY]) {
@@ -400,22 +479,27 @@
     });
   } catch {}
 
-  // 11. LIFECYCLE INITIALIZATION & MUTATION OBSERVER
+  // 13. LIFECYCLE INITIALIZATION & MUTATION OBSERVER
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mountWidget);
+    document.addEventListener('DOMContentLoaded', () => {
+      mountWidget();
+      setTimeout(autoDetectFirstCard, 600);
+    });
   } else {
     mountWidget();
+    setTimeout(autoDetectFirstCard, 600);
   }
 
-  // Handle SPA transitions in Meshy
   let lastHref = window.location.href;
   const domObserver = new MutationObserver(() => {
     if (!document.getElementById('meshy-fetch-workspace-container')) {
       mountWidget();
+      setTimeout(autoDetectFirstCard, 500);
     }
     if (window.location.href !== lastHref) {
       lastHref = window.location.href;
       syncFromStorage();
+      setTimeout(autoDetectFirstCard, 500);
     }
   });
 
